@@ -1,0 +1,22 @@
+[Unit]
+Description=RTIP Qntrl Workflow Service
+After=network.target
+
+[Service]
+User=rtip
+Group=rtip
+WorkingDirectory=/home/rtip/rtip-qntrl-workflow
+
+
+
+
+ExecStart=/home/rtip/miniconda3/envs/qntrl-workflow/bin/python main.py
+
+Restart=always
+RestartSec=5
+
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
