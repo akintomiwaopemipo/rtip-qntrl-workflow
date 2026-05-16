@@ -1,0 +1,1 @@
+journalctl -u rtip-qntrl-workflow -n 100 -f
