@@ -4,8 +4,12 @@ from src.domain.blueprint.service import (
     domain_blueprint_service
 )
 
+from src.integrations.qntrl.client import qntrl_client
 
 class BlueprintService:
+
+    async def get_all_organizations(self):
+        return await qntrl_client.base_request("GET","org")
 
     async def get_all_blueprints(self):
         return await (

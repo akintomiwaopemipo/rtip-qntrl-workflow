@@ -19,6 +19,15 @@ router = APIRouter(
 )
 
 
+@router.get("/organizations")
+async def get_all_organizations(
+    service: BlueprintService = Depends(
+        get_blueprint_service
+    )
+):
+    return await service.get_all_organizations()
+
+
 @router.get("/")
 async def get_all_blueprints(
     service: BlueprintService = Depends(
