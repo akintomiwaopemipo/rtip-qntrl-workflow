@@ -1,9 +1,6 @@
 from fastapi import FastAPI
 
-from src.api.routes.blueprint import (
-    router as blueprint_router
-)
-
+from src.api.routes import api_router
 
 app = FastAPI(
     title="Qntrl Enterprise API",
@@ -11,7 +8,7 @@ app = FastAPI(
 )
 
 
-app.include_router(blueprint_router)
+app.include_router(api_router)
 
 
 @app.get("/health")
