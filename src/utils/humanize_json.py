@@ -12,4 +12,4 @@ def humanize_json(data: Any) -> str:
 
         result.append(f"{readable_key}: {value}")
 
-    return "\n\n".join(result)
+    return "<br/><br/>".join(result)
