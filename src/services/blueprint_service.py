@@ -1,5 +1,5 @@
 from typing import Any
-from pydantic import BaseModel
+from src.domain.app_base_model import AppBaseModel
 from src.integrations.qntrl.client import qntrl_client
 from src.core.config import settings
 
@@ -9,7 +9,7 @@ layout_id = int(settings.qntrl_layout_id)
 
 
 
-class CreateCardPayload(BaseModel):
+class CreateCardPayload(AppBaseModel):
     title: str
     layout_id: int
 
@@ -86,12 +86,10 @@ class BlueprintService:
         payload: CreateCardPayload
     ) -> dict[str, Any]:
 
-        print(f"Creating card with payload: {payload.model_dump()}")
-
         return await qntrl_client.request(
             "POST",
             f"/job",
-            json=payload.model_dump()
+            files=payload.multipart()
         )
 
 

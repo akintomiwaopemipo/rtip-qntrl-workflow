@@ -15,7 +15,7 @@ class SubmissionWorkflow:
         response = cast(BrokerSubmissionResponse, await create_broker_submission())
 
         return await blueprint_service.create_card(CreateCardPayload(
-            title=f"#{response.caseFileVersionId}",
+            title=f"CaseFile: {response.caseFileVersionId}",
             layout_id=layout_id,
             description=humanize_json(response.model_dump())
         ))

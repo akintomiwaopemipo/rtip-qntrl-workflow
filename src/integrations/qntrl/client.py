@@ -31,6 +31,7 @@ class QntrlClient:
         json: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         data: dict[str, Any] | None = None,
+        files: dict[str, Any] | None = None,
         timeout: httpx.Timeout | None = None,
     ) -> dict[str, Any]:
 
@@ -41,8 +42,7 @@ class QntrlClient:
         headers["Authorization"] = (
             f"Zoho-oauthtoken {token}"
         )
-        headers["accept"] = "application/json"
-        headers["Content-Type"] = "application/x-www-form-urlencoded"
+        
         
 
         endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
@@ -54,6 +54,7 @@ class QntrlClient:
             params=params,
             json=json,
             data=data,
+            files=files,
             timeout=timeout
         )
 
