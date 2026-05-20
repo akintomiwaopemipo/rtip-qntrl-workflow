@@ -28,6 +28,16 @@ async def get_all_organizations(
     return await service.get_all_organizations()
 
 
+@router.get("/layouts")
+async def get_all_layouts(
+    service: BlueprintService = Depends(
+        get_blueprint_service
+    )
+):
+    return await service.get_all_layouts()
+
+
+
 @router.get("/")
 async def get_all_blueprints(
     service: BlueprintService = Depends(

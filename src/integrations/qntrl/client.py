@@ -8,11 +8,11 @@ from src.integrations.qntrl.auth import auth_manager
 
 BASE_URL = (
     f"https://coreapi.qntrl.com/"
-    f"blueprint/api/"
+    f"blueprint/api"
 )
 
 API_URL = (
-    f"{BASE_URL}{settings.qntrl_org}"
+    f"{BASE_URL}/{settings.qntrl_org_id}"
 )
 
 
@@ -38,6 +38,8 @@ class QntrlClient:
             f"Zoho-oauthtoken {token}"
         )
 
+        endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
+
         response = await self.client.request(
             method=method,
             url=f"{API_URL}{endpoint}",
@@ -45,7 +47,11 @@ class QntrlClient:
             **kwargs
         )
 
-        response.raise_for_status()
+        try:
+            response.raise_for_status()
+        except httpx.HTTPStatusError as exc:
+            print(f"Request failed: {exc.response.status_code} - {exc.response.text}")
+            raise exc
 
         return response.json()
 
@@ -65,6 +71,8 @@ class QntrlClient:
         headers["Authorization"] = (
             f"Zoho-oauthtoken {token}"
         )
+
+        endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
 
         response = await self.client.request(
             method=method,
