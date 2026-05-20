@@ -27,16 +27,23 @@ class QntrlClient:
         self,
         method: str,
         endpoint: str,
-        **kwargs: Any
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        data: dict[str, Any] | None = None,
+        timeout: httpx.Timeout | None = None,
     ) -> dict[str, Any]:
 
         token = await auth_manager.get_access_token()
 
-        headers = kwargs.pop("headers", {})
+        headers = headers or {}
 
         headers["Authorization"] = (
             f"Zoho-oauthtoken {token}"
         )
+        headers["accept"] = "application/json"
+        headers["Content-Type"] = "application/x-www-form-urlencoded"
+        
 
         endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
 
@@ -44,7 +51,10 @@ class QntrlClient:
             method=method,
             url=f"{API_URL}{endpoint}",
             headers=headers,
-            **kwargs
+            params=params,
+            json=json,
+            data=data,
+            timeout=timeout
         )
 
         try:

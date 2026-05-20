@@ -1,7 +1,33 @@
+from typing import Any
+
 import httpx
+from pydantic import BaseModel
 
 
-async def create_broker_submission():
+class BrokerSubmissionResponse(BaseModel):
+    brokerVersionId: str
+    caseFileVersionId: str
+
+    error: str
+    filingFee: float | int
+
+    guidelinesViolations: list[Any]
+
+    message: str
+
+    policyFee: float | int
+    premium: float | int
+    sltax: float | int
+
+    submissionStatus: str
+
+    totalDue: float | int
+    totaltax: float | int
+
+
+
+
+async def create_broker_submission() -> BrokerSubmissionResponse | dict[str, Any]:
    
     url = "http://192.168.103.101:51081/v3/api/v3/brokerSubmission"
 
@@ -68,7 +94,7 @@ async def create_broker_submission():
 
             response.raise_for_status()
 
-            return response.json()
+            return BrokerSubmissionResponse(**response.json())
 
     except httpx.ReadTimeout:
         return {

@@ -1,10 +1,29 @@
 from typing import Any
-
+from pydantic import BaseModel
 from src.integrations.qntrl.client import qntrl_client
 from src.core.config import settings
 
-layout_id = settings.qntrl_layout_id
 
+
+layout_id = int(settings.qntrl_layout_id)
+
+
+
+class CreateCardPayload(BaseModel):
+    title: str
+    layout_id: int
+
+    record_owner: int | None = None
+    team_id: int | None = None
+    description: str | None = None
+    duedate: str | None = None
+    priority: int | None = None
+
+    custom_fields: dict[str, Any] = {}
+
+
+
+    
 class BlueprintService:
 
     async def get_all_organizations(self):
@@ -58,6 +77,21 @@ class BlueprintService:
             "POST",
             f"/blueprints/{blueprint_id}/transitions",
             json=payload
+        )
+
+
+
+    async def create_card(
+        self,
+        payload: CreateCardPayload
+    ) -> dict[str, Any]:
+
+        print(f"Creating card with payload: {payload.model_dump()}")
+
+        return await qntrl_client.request(
+            "POST",
+            f"/job",
+            json=payload.model_dump()
         )
 
 
