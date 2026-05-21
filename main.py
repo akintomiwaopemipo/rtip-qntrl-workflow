@@ -6,7 +6,13 @@ from src.api.routes import api_router
 
 app = FastAPI(
     title="Qntrl Enterprise API",
-    version="1.0.0"
+    version="1.0.0",
+    responses={
+        400: {
+            "model": ErrorMessage,
+            "description": "Bad Request"
+        }
+    }
 )
 
 logger = logging.getLogger(__name__)
