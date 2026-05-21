@@ -37,7 +37,7 @@ async def create_broker_submission(payload: CreateBrokerSubmissionPayload):
 
     return await http_client.request(
         method = HttpMethod.POST,
-        url = nextgen_url("/brokersubmission"),
+        url = nextgen_url("/brokerSubmission"),
         response_model = BrokerSubmissionResponse,
         json = payload.model_dump()
     )
