@@ -1,7 +1,6 @@
 from fastapi import APIRouter, Depends
 
 from src.api.dependencies.qntrl import get_submission_workflow
-from src.api.helpers.safe_call import safe_call
 from src.domain.submission import CreateBrokerSubmissionPayload
 from src.workflows.submission import SubmissionWorkflow
 
@@ -19,6 +18,4 @@ async def create_broker_submission(
         get_submission_workflow
     )
 ):
-    return await safe_call(
-        lambda: workflow.create_broker_submission(payload)
-    )
+    return await workflow.create_broker_submission(payload)
