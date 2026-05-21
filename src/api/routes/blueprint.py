@@ -19,6 +19,16 @@ router = APIRouter(
 )
 
 
+@router.get("/next-transition/{job_id}")
+async def get_next_transition(
+    job_id: str,
+    service: BlueprintService = Depends(
+        get_blueprint_service
+    )
+):
+    return await service.next_transition(job_id)
+
+
 @router.get("/organizations")
 async def get_all_organizations(
     service: BlueprintService = Depends(

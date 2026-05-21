@@ -1,4 +1,5 @@
 from typing import Any
+from src.domain.api.http_client import HttpMethod
 from src.domain.models.app_base_model import AppBaseModel
 from src.integrations.qntrl.client import qntrl_client
 from src.core.config import settings
@@ -28,13 +29,13 @@ class BlueprintService:
 
     async def get_all_organizations(self):
         return await qntrl_client.base_request(
-            "GET",
+            HttpMethod.GET,
             "org"
         )
 
     async def get_all_layouts(self):
         return await qntrl_client.request(
-            "GET",
+            HttpMethod.GET,
             "layout"
         )
 
@@ -45,17 +46,29 @@ class BlueprintService:
         }
 
         return await qntrl_client.request(
-            "GET",
+            HttpMethod.GET,
             "/blueprint",
             params=params if params else None
         )
+    
+    async def next_transition(self, job_id: str):
+        response: list[dict[str, Any]] = await qntrl_client.request(HttpMethod.GET, f"job/nexttransitions/{job_id}")
+
+        if not response:
+            raise Exception("No transition available")
+
+        return response[0]
+
+    
+        
+
 
     async def get_blueprint(
         self,
         blueprint_id: str
     ):
         return await qntrl_client.request(
-            "GET",
+            HttpMethod.GET,
             f"/blueprints/{blueprint_id}"
         )
     
@@ -64,7 +77,7 @@ class BlueprintService:
         blueprint_id: str
     ):
         return await qntrl_client.request(
-            "GET",
+            HttpMethod.GET,
             f"/blueprints/{blueprint_id}/transitions"
         )
 
@@ -74,7 +87,7 @@ class BlueprintService:
         payload: dict[str, Any]
     ) -> dict[str, Any]:
         return await qntrl_client.request(
-            "POST",
+            HttpMethod.POST,
             f"/blueprints/{blueprint_id}/transitions",
             json=payload
         )
@@ -87,7 +100,7 @@ class BlueprintService:
     ) -> dict[str, Any]:
 
         return await qntrl_client.request(
-            "POST",
+            HttpMethod.POST,
             f"/job",
             files=payload.multipart()
         )
