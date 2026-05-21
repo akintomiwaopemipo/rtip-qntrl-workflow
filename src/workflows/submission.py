@@ -1,7 +1,7 @@
 from src.domain.api.api_error import ApiError
 from src.domain.submission import CreateBrokerSubmissionPayload, create_broker_submission
 from src.services.blueprint_service import CreateCardPayload, blueprint_service, layout_id
-from src.utils.humanize_json import humanize_json
+from src.api.helpers.humanize_json import humanize_json
 
 
 class SubmissionWorkflow:
