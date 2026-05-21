@@ -3,7 +3,7 @@ from pydantic import BaseModel
 
 
 class ErrorMessage(BaseModel):
-    error: str
+    detail: str
 
 
 def error_response(
@@ -14,6 +14,6 @@ def error_response(
     return JSONResponse(
         status_code=status_code,
         content=ErrorMessage(
-            error=str(exception)
+            detail=str(exception)
         ).model_dump()
     )

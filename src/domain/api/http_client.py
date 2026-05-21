@@ -1,6 +1,7 @@
 from typing import Any, TypeVar
 from enum import Enum
 
+from fastapi import HTTPException
 import httpx
 from pydantic import BaseModel
 
@@ -80,10 +81,24 @@ class HttpClient:
                 headers=merged_headers,
             )
 
+        
+        try:
             response.raise_for_status()
 
             return response_model(
                 **response.json()
+            )
+
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(
+                status_code=exc.response.status_code,
+                detail=exc.response.text
+            )
+
+        except httpx.RequestError as exc:
+            raise HTTPException(
+                status_code=503,
+                detail=str(exc)
             )
 
 

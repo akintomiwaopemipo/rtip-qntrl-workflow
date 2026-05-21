@@ -1,18 +1,52 @@
+from typing import Any
+
 from fastapi import FastAPI, Request
 from fastapi.responses import JSONResponse
 import logging
 from src.api.helpers.error_response import ErrorMessage
 from src.api.routes import api_router
 
+
+from typing import Any
+
+RESPONSES: dict[int | str, dict[str, Any]] = {
+    200: {
+        "model": dict[str, Any]
+    },
+
+    **{
+        status_code: {
+            "model": ErrorMessage
+        }
+        for status_code in [
+            400,
+            401,
+            403,
+            404,
+            409,
+            422,
+            429,
+            500,
+            502,
+            503,
+            504
+        ]
+    }
+}
+
+
+
+
 app = FastAPI(
     title="Qntrl Enterprise API",
     version="1.0.0",
-    responses={
-        400: {
-            "model": ErrorMessage,
-            "description": "Bad Request"
-        }
-    }
+    responses=RESPONSES
+)
+
+app = FastAPI(
+    title="Qntrl Enterprise API",
+    version="1.0.0",
+    responses=RESPONSES
 )
 
 logger = logging.getLogger(__name__)
@@ -31,7 +65,7 @@ async def global_exception_handler(
     return JSONResponse(
         status_code=400,
         content=ErrorMessage(
-            error=str(exc),
+            detail=str(exc),
         ).model_dump()
     )
 

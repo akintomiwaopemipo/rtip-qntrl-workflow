@@ -1,8 +1,10 @@
 from typing import Any
 
+from fastapi import HTTPException
 import httpx
 
 from src.core.config import settings
+from src.domain.api.http_client import HttpMethod
 from src.integrations.qntrl.auth import auth_manager
 
 
@@ -23,9 +25,10 @@ class QntrlClient:
             timeout=30.0
         )
 
-    async def request(
+    async def _request(
         self,
-        method: str,
+        base_url: str,
+        method: HttpMethod,
         endpoint: str,
         params: dict[str, Any] | None = None,
         json: dict[str, Any] | None = None,
@@ -33,7 +36,7 @@ class QntrlClient:
         data: dict[str, Any] | None = None,
         files: dict[str, Any] | None = None,
         timeout: httpx.Timeout | None = None,
-    ) -> dict[str, Any]:
+    ):
 
         token = await auth_manager.get_access_token()
 
@@ -42,59 +45,84 @@ class QntrlClient:
         headers["Authorization"] = (
             f"Zoho-oauthtoken {token}"
         )
-        
-        
 
         endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
 
-        response = await self.client.request(
+        try:
+            response = await self.client.request(
+                method=method.value,
+                url=f"{base_url}{endpoint}",
+                headers=headers,
+                params=params,
+                json=json,
+                data=data,
+                files=files,
+                timeout=timeout
+            )
+
+            response.raise_for_status()
+
+            return response.json()
+
+        except httpx.HTTPStatusError as exc:
+            raise HTTPException(
+                status_code=exc.response.status_code,
+                detail=exc.response.text
+            )
+
+        except httpx.RequestError as exc:
+            raise HTTPException(
+                status_code=503,
+                detail=str(exc)
+            )
+
+    async def request(
+        self,
+        method: HttpMethod,
+        endpoint: str,
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        data: dict[str, Any] | None = None,
+        files: dict[str, Any] | None = None,
+        timeout: httpx.Timeout | None = None,
+    ):
+
+        return await self._request(
+            base_url=API_URL,
             method=method,
-            url=f"{API_URL}{endpoint}",
-            headers=headers,
+            endpoint=endpoint,
             params=params,
             json=json,
+            headers=headers,
             data=data,
             files=files,
             timeout=timeout
         )
 
-        try:
-            response.raise_for_status()
-        except httpx.HTTPStatusError as exc:
-            print(f"Request failed: {exc.response.status_code} - {exc.response.text}")
-            raise exc
-
-        return response.json()
-
-    
-    
     async def base_request(
         self,
-        method: str,
+        method: HttpMethod,
         endpoint: str,
-        **kwargs: Any
-    ) -> dict[str, Any]:
+        params: dict[str, Any] | None = None,
+        json: dict[str, Any] | None = None,
+        headers: dict[str, str] | None = None,
+        data: dict[str, Any] | None = None,
+        files: dict[str, Any] | None = None,
+        timeout: httpx.Timeout | None = None,
+    ):
 
-        token = await auth_manager.get_access_token()
-
-        headers = kwargs.pop("headers", {})
-
-        headers["Authorization"] = (
-            f"Zoho-oauthtoken {token}"
-        )
-
-        endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
-
-        response = await self.client.request(
+        return await self._request(
+            base_url=BASE_URL,
             method=method,
-            url=f"{BASE_URL}{endpoint}",
+            endpoint=endpoint,
+            params=params,
+            json=json,
             headers=headers,
-            **kwargs
+            data=data,
+            files=files,
+            timeout=timeout
         )
-
-        response.raise_for_status()
-
-        return response.json()
 
 
 qntrl_client = QntrlClient()
