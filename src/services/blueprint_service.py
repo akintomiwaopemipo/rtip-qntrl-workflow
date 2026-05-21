@@ -1,5 +1,5 @@
 from typing import Any
-from src.domain.app_base_model import AppBaseModel
+from src.domain.models.app_base_model import AppBaseModel
 from src.integrations.qntrl.client import qntrl_client
 from src.core.config import settings
 
