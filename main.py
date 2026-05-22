@@ -10,9 +10,6 @@ from src.api.routes import api_router
 from typing import Any
 
 RESPONSES: dict[int | str, dict[str, Any]] = {
-    200: {
-        "model": dict[str, Any]
-    },
 
     **{
         status_code: {
@@ -20,31 +17,15 @@ RESPONSES: dict[int | str, dict[str, Any]] = {
         }
         for status_code in [
             400,
-            401,
-            403,
-            404,
-            409,
-            422,
-            429,
-            500,
-            502,
-            503,
-            504
+            412
         ]
     }
 }
 
 
 
-
 app = FastAPI(
-    title="Qntrl Enterprise API",
-    version="1.0.0",
-    responses=RESPONSES
-)
-
-app = FastAPI(
-    title="Qntrl Enterprise API",
+    title="RTIP Qntrl Workflow",
     version="1.0.0",
     responses=RESPONSES
 )
