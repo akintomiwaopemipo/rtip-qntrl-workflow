@@ -24,6 +24,21 @@ class CreateCardPayload(AppBaseModel):
 
 
 
+class Transition(AppBaseModel):
+    transition_id: str
+    rule_name: str
+
+class TransitionPayload(AppBaseModel):
+    transition_id: str
+
+
+class MoveCardToNextStagePayload(AppBaseModel):
+    transition_id: str
+
+class MoveCardToNextStageResponse(AppBaseModel):
+    transition_name: str
+
+
     
 class BlueprintService:
 
@@ -51,16 +66,45 @@ class BlueprintService:
             params=params if params else None
         )
     
-    async def next_transition(self, job_id: str):
-        response: list[dict[str, Any]] = await qntrl_client.request(HttpMethod.GET, f"job/nexttransitions/{job_id}")
+    async def next_transitions(self, job_id: str) -> list[Transition]:
+        response = await qntrl_client.request(HttpMethod.GET, f"/job/nexttransitions/{job_id}")
 
-        if not response:
+        return [
+            Transition(
+                transition_id=item["transition_id"],
+                rule_name=item["transitionrulemap_details"]["businessrule_details"]["rule_name"]
+            )
+            for item in response
+        ]
+
+
+    async def perform_transition(self, job_id: str, payload: TransitionPayload):
+
+        return await qntrl_client.request(
+            HttpMethod.POST,
+            f"/job/transition/{job_id}",
+            files=payload.multipart()
+        )
+
+
+    async def move_card_to_next_stage(self, job_id: str, payload: MoveCardToNextStagePayload):
+
+        next_transitions = await self.next_transitions(job_id)
+
+        if not next_transitions:
             raise Exception("No transition available")
 
-        return response[0]
+        transition_id = payload.transition_id
 
-    
-        
+        perform_transition_payload = TransitionPayload(
+            transition_id=transition_id
+        )
+
+        response = await self.perform_transition(job_id, perform_transition_payload)
+
+        return MoveCardToNextStageResponse(
+            transition_name=response["transition_name"]
+        )
 
 
     async def get_blueprint(
@@ -72,25 +116,6 @@ class BlueprintService:
             f"/blueprints/{blueprint_id}"
         )
     
-    async def get_transitions(
-        self,
-        blueprint_id: str
-    ):
-        return await qntrl_client.request(
-            HttpMethod.GET,
-            f"/blueprints/{blueprint_id}/transitions"
-        )
-
-    async def perform_transition(
-        self,
-        blueprint_id: str,
-        payload: dict[str, Any]
-    ) -> dict[str, Any]:
-        return await qntrl_client.request(
-            HttpMethod.POST,
-            f"/blueprints/{blueprint_id}/transitions",
-            json=payload
-        )
 
 
 

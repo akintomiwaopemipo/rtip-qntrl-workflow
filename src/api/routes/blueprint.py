@@ -1,11 +1,11 @@
 from fastapi import APIRouter, Depends
 
-from src.schemas.blueprint import (
-    TransitionPayload
-)
 
 from src.services.blueprint_service import (
-    BlueprintService
+    BlueprintService,
+    MoveCardToNextStagePayload,
+    MoveCardToNextStageResponse,
+    Transition
 )
 
 from src.api.dependencies.qntrl import (
@@ -19,14 +19,26 @@ router = APIRouter(
 )
 
 
-@router.get("/next-transition/{job_id}")
-async def get_next_transition(
+@router.post("/cards/{job_id}/move-to-next-stage")
+async def move_card_to_next_stage(
+    job_id: str,
+    payload: MoveCardToNextStagePayload,
+    service: BlueprintService = Depends(
+        get_blueprint_service
+    )
+) -> MoveCardToNextStageResponse:
+    return await service.move_card_to_next_stage(job_id, payload)
+    
+
+@router.get("/cards/{job_id}/next-transitions")
+async def get_next_transitions(
     job_id: str,
     service: BlueprintService = Depends(
         get_blueprint_service
     )
-):
-    return await service.next_transition(job_id)
+) -> list[Transition]:
+    return await service.next_transitions(job_id)
+
 
 
 @router.get("/organizations")
@@ -66,18 +78,4 @@ async def get_blueprint(
 ):
     return await service.get_blueprint(
         blueprint_id
-    )
-
-
-@router.post("/{blueprint_id}/transitions")
-async def perform_transition(
-    blueprint_id: str,
-    payload: TransitionPayload,
-    service: BlueprintService = Depends(
-        get_blueprint_service
-    )
-):
-    return await service.perform_transition(
-        blueprint_id,
-        payload.model_dump()
     )

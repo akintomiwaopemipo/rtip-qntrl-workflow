@@ -1,5 +1,6 @@
 from typing import Any, TypeVar
 from enum import Enum
+import json as json_module
 
 from fastapi import HTTPException
 import httpx
@@ -51,7 +52,7 @@ class HttpClient:
         params: dict[str, Any] | None = None,
         json: dict[str, Any] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, Any] | None = None,
+        files: dict[str, tuple[None, str]] | None = None,
         headers: dict[str, str] | None = None,
     ) -> T | ApiError:
 
@@ -90,9 +91,16 @@ class HttpClient:
             )
 
         except httpx.HTTPStatusError as exc:
+            detail = exc.response.text
+
+            try:
+                detail = json_module.loads(detail)
+            except json_module.JSONDecodeError:
+                pass
+
             raise HTTPException(
                 status_code=exc.response.status_code,
-                detail=exc.response.text
+                detail=detail
             )
 
         except httpx.RequestError as exc:

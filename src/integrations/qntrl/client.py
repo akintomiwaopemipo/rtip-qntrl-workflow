@@ -1,4 +1,5 @@
 from typing import Any
+import json as json_module
 
 from fastapi import HTTPException
 import httpx
@@ -34,7 +35,7 @@ class QntrlClient:
         json: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, Any] | None = None,
+        files: dict[str, tuple[None, str]] | None = None,
         timeout: httpx.Timeout | None = None,
     ):
 
@@ -48,10 +49,12 @@ class QntrlClient:
 
         endpoint = endpoint if endpoint.startswith("/") else f"/{endpoint}"
 
+        url = f"{base_url}{endpoint}"
+
         try:
             response = await self.client.request(
                 method=method.value,
-                url=f"{base_url}{endpoint}",
+                url=url,
                 headers=headers,
                 params=params,
                 json=json,
@@ -65,9 +68,16 @@ class QntrlClient:
             return response.json()
 
         except httpx.HTTPStatusError as exc:
+            detail = exc.response.text
+
+            try:
+                detail = json_module.loads(detail)
+            except json_module.JSONDecodeError:
+                pass
+
             raise HTTPException(
                 status_code=exc.response.status_code,
-                detail=exc.response.text
+                detail=detail
             )
 
         except httpx.RequestError as exc:
@@ -84,7 +94,7 @@ class QntrlClient:
         json: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, Any] | None = None,
+        files: dict[str, tuple[None, str]] | None = None,
         timeout: httpx.Timeout | None = None,
     ):
 
@@ -108,7 +118,7 @@ class QntrlClient:
         json: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, Any] | None = None,
+        files: dict[str, tuple[None, str]] | None = None,
         timeout: httpx.Timeout | None = None,
     ):
 
