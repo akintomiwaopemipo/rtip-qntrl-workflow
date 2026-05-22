@@ -4,6 +4,7 @@ import json as json_module
 from fastapi import HTTPException
 import httpx
 
+from src.api.helpers.multipart import MultipartFiles
 from src.core.config import settings
 from src.domain.api.http_client import HttpMethod
 from src.integrations.qntrl.auth import auth_manager
@@ -35,7 +36,7 @@ class QntrlClient:
         json: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[None, str]] | None = None,
+        files: MultipartFiles | None = None,
         timeout: httpx.Timeout | None = None,
     ):
 
@@ -94,7 +95,7 @@ class QntrlClient:
         json: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[None, str]] | None = None,
+        files: MultipartFiles | None = None,
         timeout: httpx.Timeout | None = None,
     ):
 
@@ -118,7 +119,7 @@ class QntrlClient:
         json: dict[str, Any] | None = None,
         headers: dict[str, str] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[None, str]] | None = None,
+        files: MultipartFiles | None = None,
         timeout: httpx.Timeout | None = None,
     ):
 

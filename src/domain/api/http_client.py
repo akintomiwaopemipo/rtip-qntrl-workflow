@@ -6,6 +6,7 @@ from fastapi import HTTPException
 import httpx
 from pydantic import BaseModel
 
+from src.api.helpers.multipart import MultipartFiles
 from src.domain.api.api_error import ApiError
 
 
@@ -52,7 +53,7 @@ class HttpClient:
         params: dict[str, Any] | None = None,
         json: dict[str, Any] | None = None,
         data: dict[str, Any] | None = None,
-        files: dict[str, tuple[None, str]] | None = None,
+        files: MultipartFiles | None = None,
         headers: dict[str, str] | None = None,
     ) -> T | ApiError:
 

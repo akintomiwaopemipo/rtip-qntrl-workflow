@@ -1,11 +1,11 @@
 from typing import Any, cast
-
+from src.api.helpers.multipart import MultipartFiles
 from pydantic import BaseModel
 
 
 class AppBaseModel(BaseModel):
 
-    def multipart(self) -> dict[str, tuple[None, str]]:
+    def multipart(self) -> MultipartFiles:
 
         data: dict[str, Any] = self.model_dump(
             exclude_none=True
