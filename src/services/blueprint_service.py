@@ -32,10 +32,10 @@ class TransitionPayload(AppBaseModel):
     transition_id: str
 
 
-class MoveCardToNextStagePayload(AppBaseModel):
+class PerformTransitionPayload(AppBaseModel):
     transition_id: str
 
-class MoveCardToNextStageResponse(AppBaseModel):
+class PerformTransitionResponse(AppBaseModel):
     transition_name: str
 
 
@@ -78,16 +78,8 @@ class BlueprintService:
         ]
 
 
-    async def perform_transition(self, job_id: str, payload: TransitionPayload):
 
-        return await qntrl_client.request(
-            HttpMethod.POST,
-            f"/job/transition/{job_id}",
-            files=payload.multipart()
-        )
-
-
-    async def move_card_to_next_stage(self, job_id: str, payload: MoveCardToNextStagePayload):
+    async def perform_transition(self, job_id: str, payload: PerformTransitionPayload):
 
         next_transitions = await self.next_transitions(job_id)
 
@@ -100,9 +92,13 @@ class BlueprintService:
             transition_id=transition_id
         )
 
-        response = await self.perform_transition(job_id, perform_transition_payload)
+        response = await qntrl_client.request(
+            HttpMethod.POST,
+            f"/job/transition/{job_id}",
+            files=perform_transition_payload.multipart()
+        )
 
-        return MoveCardToNextStageResponse(
+        return PerformTransitionResponse(
             transition_name=response["transition_name"]
         )
 

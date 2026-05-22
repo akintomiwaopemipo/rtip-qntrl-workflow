@@ -3,8 +3,8 @@ from fastapi import APIRouter, Depends
 
 from src.services.blueprint_service import (
     BlueprintService,
-    MoveCardToNextStagePayload,
-    MoveCardToNextStageResponse,
+    PerformTransitionPayload,
+    PerformTransitionResponse,
     Transition
 )
 
@@ -19,15 +19,38 @@ router = APIRouter(
 )
 
 
-@router.post("/cards/{job_id}/move-to-next-stage")
-async def move_card_to_next_stage(
-    job_id: str,
-    payload: MoveCardToNextStagePayload,
+
+@router.get("/")
+async def get_all_blueprints(
     service: BlueprintService = Depends(
         get_blueprint_service
     )
-) -> MoveCardToNextStageResponse:
-    return await service.move_card_to_next_stage(job_id, payload)
+):
+    return await service.get_all_blueprints()
+
+
+@router.get("/{blueprint_id}")
+async def get_blueprint(
+    blueprint_id: str,
+    service: BlueprintService = Depends(
+        get_blueprint_service
+    )
+):
+    return await service.get_blueprint(
+        blueprint_id
+    )
+
+
+
+@router.post("/cards/{job_id}/perform-transition")
+async def perform_transition(
+    job_id: str,
+    payload: PerformTransitionPayload,
+    service: BlueprintService = Depends(
+        get_blueprint_service
+    )
+) -> PerformTransitionResponse:
+    return await service.perform_transition(job_id, payload)
     
 
 @router.get("/cards/{job_id}/next-transitions")
@@ -57,25 +80,3 @@ async def get_all_layouts(
     )
 ):
     return await service.get_all_layouts()
-
-
-
-@router.get("/")
-async def get_all_blueprints(
-    service: BlueprintService = Depends(
-        get_blueprint_service
-    )
-):
-    return await service.get_all_blueprints()
-
-
-@router.get("/{blueprint_id}")
-async def get_blueprint(
-    blueprint_id: str,
-    service: BlueprintService = Depends(
-        get_blueprint_service
-    )
-):
-    return await service.get_blueprint(
-        blueprint_id
-    )
